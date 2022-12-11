@@ -8,7 +8,7 @@ const PageContainer = props => {
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 90,
+        paddingTop: 10,
         paddingHorizontal: 30,
         flex: 1,
         backgroundColor: 'white'
