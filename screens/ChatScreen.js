@@ -63,15 +63,18 @@ const ChatScreen = (props) => {
   const chatData = (chatId && storedChats[chatId]) || props.route?.params?.newChatData;
  
 
+
   const getChatTitleFromName = () =>{
     const otherUserId = chatUsers.find(uid => uid !== userData.userId);
     const otherUserData = storedUsers[otherUserId];
     return otherUserData && `${otherUserData.firstName} ${otherUserData.lastName}`;
   }
 
+  const title = chatData.chatName ?? getChatTitleFromName();
+
   useEffect(() => {
     props.navigation.setOptions({
-      headerTitle: getChatTitleFromName()
+      headerTitle: title
     })
     setChatUsers(chatData.users);
   }, [chatUsers]);
@@ -86,7 +89,7 @@ const ChatScreen = (props) => {
         id = await createChat(userData.userId,props.route.params.newChatData);
         setChatId(id); 
       }
-      await sendTextMessage(chatId, userData.userId, messageText, replyingTo && replyingTo.key);
+      await sendTextMessage(id, userData.userId, messageText, replyingTo && replyingTo.key);
       setMessageText("");
       setReplyingTo(null);
     } catch (error) {
@@ -176,6 +179,8 @@ const ChatScreen = (props) => {
 
                   const isOwnMessage = message.sentBy === userData.userId;
                   const messageType = isOwnMessage ? "myMessage" : "theirMessage";
+                  const sender = message.sentBy && storedUsers[message.sentBy];
+                  const name = sender && `${sender.firstName} ${sender.lastName}`;
 
                   return <Bubble
                             type={messageType}
@@ -184,6 +189,7 @@ const ChatScreen = (props) => {
                             userId={userData.userId}
                             chatId={chatId}
                             date={message.sentAt}
+                            name={!chatData.isGroupChat || isOwnMessage ? undefined : name}
                             setReply={() => setReplyingTo(message)}
                             replyingTo={message.replyTo && chatMessages.find(i => i.key === message.replyTo)}
                             imageUrl={message.imageUrl}
